@@ -12,7 +12,8 @@ def create_time_period_dropdown():
         id='time-period-dropdown',
         options=[{'label': 'Daily', 'value': 'D'},
                  {'label': 'Hourly', 'value': 'H'},
-                 {'label': 'Minute-by-Minute', 'value': 'M'}],
+                 {'label': 'Minute-by-Minute', 'value': 'M'},
+                 {'label': 'Second-by-Second', 'value': 'S'}],
         value='D'
     )
 
@@ -44,6 +45,8 @@ def create_time_series(variable, time_period, user_id, data):
         user_data['ActivityHour'] = pd.to_datetime(user_data['ActivityHour'], format='%m/%d/%Y %I:%M:%S %p')
     elif time_period == 'M':
         user_data['ActivityMinute'] = pd.to_datetime(user_data['ActivityMinute'], format='%m/%d/%Y %I:%M:%S %p')
+    elif time_period == 'S':
+        user_data['ActivitySecond'] = pd.to_datetime(user_data['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
 
     # Create the visualization using Plotly Express
     if time_period == 'D':
@@ -52,6 +55,8 @@ def create_time_series(variable, time_period, user_id, data):
         fig = px.line(user_data, x='ActivityHour', y=variable, title=variable)
     elif time_period == 'M':
         fig = px.line(user_data, x='ActivityMinute', y=variable, title=variable)
+    elif time_period == 'S':
+        fig = px.line(user_data, x='ActivitySecond', y=variable, title=variable)
 
     return fig
 

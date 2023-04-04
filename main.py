@@ -14,15 +14,24 @@ from data import valid_variables
 
 # Function to read the data
 def read_data():
-    daily_activity = pd.read_csv("data/dailyActivity_merged.csv")
-    # Renaming column name for consistency over dataframes
+    daily_activity = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/dailyActivity_merged.csv")
+    daily_sleep = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/sleepDay_merged.csv")
+    daily_weight = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/weightLogInfo_merged.csv")
+    hourly_calories = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/hourlyCalories_merged.csv")
+    hourly_intensities = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/hourlyIntensities_merged.csv")
+    hourly_steps = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/hourlySteps_merged.csv")
+    minute_calories_narrow = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/minuteCaloriesNarrow_merged.csv")
+    minute_intensities_narrow = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/minuteIntensitiesNarrow_merged.csv")
+    minute_steps_narrow = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/minuteStepsNarrow_merged.csv")
+    minute_sleep = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/minuteSleep_merged.csv")
+    second_heartrate = pd.read_csv("/Users/jaigollapudi/Downloads/Fitabase Data 4.12.16-5.12.16/heartrate_seconds_merged.csv")
+
+    # Renaming column names for consistency over dataframes
     daily_activity = daily_activity.rename(columns={'ActivityDate': 'ActivityDay'})
-    hourly_calories = pd.read_csv("data/hourlyCalories_merged.csv")
-    hourly_intensities = pd.read_csv("data/hourlyIntensities_merged.csv")
-    hourly_steps = pd.read_csv("data/hourlySteps_merged.csv")
-    minute_calories_narrow = pd.read_csv("data/minuteCaloriesNarrow_merged.csv")
-    minute_intensities_narrow = pd.read_csv("data/minuteIntensitiesNarrow_merged.csv")
-    minute_steps_narrow = pd.read_csv("data/minuteStepsNarrow_merged.csv")
+    daily_sleep = daily_sleep.rename(columns={'SleepDay': 'ActivityDay'})
+    daily_weight = daily_weight.rename(columns={'Date': 'ActivityDay'})
+    minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute'})
+    second_heartrate = second_heartrate.rename(columns={'Time': 'ActivitySecond'})
 
     # Defining the variables and the dataframe it needs to be pulled from
     data = {
@@ -39,7 +48,12 @@ def read_data():
             "FairlyActiveMinutes": daily_activity,
             "LightlyActiveMinutes": daily_activity,
             "SedentaryMinutes": daily_activity,
-            "Calories": daily_activity
+            "Calories": daily_activity,
+            "TotalMinutesAsleep": daily_sleep,
+            "TotalTimeInBed": daily_sleep,
+            "WeightKg": daily_weight,
+            "WeightPounds": daily_weight,
+            "BMI": daily_weight
         },
         "H": {
             "Calories": hourly_calories,
@@ -49,7 +63,11 @@ def read_data():
         "M": {
             "Steps": minute_steps_narrow,
             "Calories": minute_calories_narrow,
-            "Intensity": minute_intensities_narrow
+            "Intensity": minute_intensities_narrow,
+            "value": minute_sleep
+        },
+        "S": {
+            "Value": second_heartrate
         }
     }
 
@@ -113,6 +131,8 @@ def update_time_series(variable, time_period, user_id):
         options = [{'label': v, 'value': v} for v in valid_variables['H']]
     elif time_period == 'M':
         options = [{'label': v, 'value': v} for v in valid_variables['M']]
+    elif time_period =='S':
+        options = [{'label': v, 'value': v} for v in valid_variables['S']]
     else:
         options = []
     category_dropdown_menu.options = options
