@@ -11,6 +11,9 @@ from data import read_data, valid_variables
 from home import homepage
 from time_series import category_dropdown_menu, create_time_series, time_series_page
 from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_sleep_analysis_graph
+from time_series import create_time_period_dropdown, category_dropdown_menu, create_time_series, time_series_page
+from correlation import create_time_period_dropdown, category_dropdown_menu1, category_dropdown_menu2, show_correlation, correlation_page
+from data import valid_variables
 
 
 # Reading the data
@@ -55,18 +58,18 @@ def display_page(pathname):
         return homepage()
     elif pathname == '/time-series':
         return time_series_page()
-        # [Add more elif conditions for other pages here]
     elif pathname == '/sleep-analysis':
         return sleep_analysis_page()
-    #elif pathname == '/correlation':
-        #return sleep_analysis_page()
     #elif pathname == '/health-risk':
         #return sleep_analysis_page()
+    elif pathname == '/correlation':
+        return correlation_page()
     else:
         return homepage()
 
 
-
+###########################################################################################
+# Time-series page
 # Callback to update the time series chart
 @app.callback(Output('time-series-chart', 'figure'),
               Input('variable-dropdown', 'value'),
@@ -136,6 +139,8 @@ def update_category_dropdown(time_period):
     options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
     return options
 
+###########################################################################################
+# Sleep_analysis page
 # Callback to update the sleep analysis graph
 @app.callback(Output('sleep-analysis-graph', 'figure'),
               Input('user-id-sleep', 'value'),
@@ -226,6 +231,47 @@ def update_additional_message(user_id, start_date, end_date, metric):
                   f"A shorter sleep latency is generally better, as it indicates less difficulty falling asleep."
 
     return message
+
+###########################################################################################
+# Correlation Page
+# Callback to update the correlation chart
+@app.callback(Output('correlation-chart', 'figure'),
+              Input('variable-dropdown1', 'value'),
+              Input('variable-dropdown2', 'value'),
+              Input('time-period-dropdown', 'value'),
+              Input('user-id', 'value'))
+def update_correlation(attr_1, attr_2, time_period, user_id):
+    if user_id is None:
+        return {}
+    # Update the options in the category_dropdown_menu
+    if time_period == 'D':
+        options = [{'label': v, 'value': v} for v in valid_variables['D']]
+    elif time_period == 'H':
+        options = [{'label': v, 'value': v} for v in valid_variables['H']]
+    elif time_period == 'M':
+        options = [{'label': v, 'value': v} for v in valid_variables['M']]
+    elif time_period =='S':
+        options = [{'label': v, 'value': v} for v in valid_variables['S']]
+    else:
+        options = []
+    category_dropdown_menu.options = options
+
+    # Check if the selected variable is valid for the selected time period
+    for attr in [attr_1, attr_2]:
+        if attr not in valid_variables[time_period]:
+            attr = valid_variables[time_period][0]
+
+    return show_correlation(attr_1, attr_2, time_period, user_id, data)
+
+
+# Callback to update category dropdown
+@app.callback(Output('variable-dropdown1', 'options'),
+              Output('variable-dropdown2', 'options'),
+              Input('time-period-dropdown', 'value'))
+def update_category_dropdown(time_period):
+    options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
+    return options, options
+
 
 
 # Update the app's config to suppress_callback_exceptions
