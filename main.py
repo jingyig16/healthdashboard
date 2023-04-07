@@ -14,6 +14,8 @@ from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_
 from time_series import create_time_period_dropdown, category_dropdown_menu, create_time_series, time_series_page
 from correlation import create_time_period_dropdown, category_dropdown_menu1, category_dropdown_menu2, show_correlation, correlation_page
 from data import valid_variables
+from heart_health import heart_health_page, create_heart_graph, df, read_heartdata, manipulate_data
+
 
 
 # Reading the data
@@ -271,7 +273,42 @@ def update_correlation(attr_1, attr_2, time_period, user_id):
     return show_correlation(attr_1, attr_2, time_period, user_id, data)
 
 
+@app.callback(
+    Output('heart-stats-graph', 'figure'),
+    Output('heart-message', 'children'),
+    Input('date-range', 'start_date'),
+    Input('date-range', 'end_date'),
+    Input('heart-metric', 'value'),
+    Input('user-id-sleep', 'value')
+)
+def update_heart_graph(start_date, end_date, metric, user_id):
+    user_data = df[df['id'] == user_id]
 
+    time_period_data = user_data[
+        (user_data['time'].dt.date >= pd.to_datetime(start_date)) &
+        (user_data['time'].dt.date <= pd.to_datetime(end_date))
+    ]
+
+    metric_data = time_period_data[metric]
+
+    fig = create_heart_graph(df, user_id, start_date, end_date, metric)
+
+    if metric == 'heartrate':
+        heart_message = html.P("Your heart beats approximately 100,000 times per day, accelerating and slowing through "
+                               "periods of rest and exertion. Your heart rate refers to how many times your heart beats "
+                               "per minute and can be an indicator of your cardiovascular health.")
+    else:
+        if metric_data.mean() < 5:
+            message = "Less than 5 METS is poor."
+        elif metric_data.mean() < 8:
+            message = "5-8 METS is fair."
+        elif metric_data.mean() < 11:
+            message = "9-11 METS is good."
+        else:
+            message = "12 METS or more is excellent."
+        heart_message = html.P(f"MET Score message: {message}")
+
+    return fig, heart_message
 
 
 

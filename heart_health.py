@@ -116,4 +116,4 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
 
 sec_heartrate, min_met = read_heartdata()
 df = manipulate_data(sec_heartrate, min_met)
-print(df)
+
