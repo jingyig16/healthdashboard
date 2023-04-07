@@ -29,7 +29,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavItem(dcc.Link("Time Series Visuals", href="/time-series", className="nav-link")),
         dbc.NavItem(dcc.Link("Correlation Exploration", href="/correlation", className="nav-link")),
         dbc.NavItem(dcc.Link("Sleep Analysis", href="/sleep-analysis", className="nav-link")),
-        dbc.NavItem(dcc.Link("Health Risk Assessment", href="/health-risk", className="nav-link")),
+        dbc.NavItem(dcc.Link("Heart Health Assessment", href="/heart-health", className="nav-link")),
     ],
     brand="Fitbit Insights Dashboard",
     brand_href="/",
@@ -60,7 +60,7 @@ def display_page(pathname):
         return time_series_page()
     elif pathname == '/sleep-analysis':
         return sleep_analysis_page()
-    #elif pathname == '/health-risk':
+    #elif pathname == '/heart-health':
         #return sleep_analysis_page()
     elif pathname == '/correlation':
         return correlation_page()
