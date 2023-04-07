@@ -72,7 +72,7 @@ def display_page(pathname):
 # Time-series page
 # Callback to update the time series chart
 @app.callback(Output('time-series-chart', 'figure'),
-              Input('variable-dropdown', 'value'),
+              Input('variable-dropdown1', 'value'),
               Input('time-period-dropdown', 'value'),
               Input('user-id', 'value'))
 def update_time_series(variable, time_period, user_id):
@@ -106,9 +106,10 @@ def update_time_series(variable, time_period, user_id):
     return create_time_series(variable, time_period, user_id, data)
 
 
+
 # Callback to update the user id options in time_series
 @app.callback(Output('user-id', 'options'),
-              Input('variable-dropdown', 'value'),
+              Input('variable-dropdown1', 'value'),
               Input('time-period-dropdown', 'value'))
 def update_user_id_options(variable, time_period):
     if variable is None:
@@ -128,16 +129,20 @@ def update_user_id_options(variable, time_period):
 
 # Callback to update category dropdown according
 # to time period selected
-@app.callback(Output('variable-dropdown', 'options'),
-              Input('time-period-dropdown', 'value'))
-def update_category_dropdown(time_period):
-    """ Updates the category dropdown menu based on user inputs
+@app.callback(
+    [Output('variable-dropdown1', 'options'),
+     Output('variable-dropdown2', 'options')],
+    [Input('time-period-dropdown', 'value')])
+def update_category_dropdowns(time_period):
+    """ Updates the category dropdown menus based on user inputs
 
     :param time_period: The time period the user chooses
-    :return: Updated category dropdown menu
+    :return: Updated category dropdown menus
     """
     options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
-    return options
+    return options, options
+
+
 
 ###########################################################################################
 # Sleep_analysis page
@@ -250,27 +255,23 @@ def update_correlation(attr_1, attr_2, time_period, user_id):
         options = [{'label': v, 'value': v} for v in valid_variables['H']]
     elif time_period == 'M':
         options = [{'label': v, 'value': v} for v in valid_variables['M']]
-    elif time_period =='S':
+    elif time_period == 'S':
         options = [{'label': v, 'value': v} for v in valid_variables['S']]
     else:
         options = []
-    category_dropdown_menu.options = options
+    category_dropdown_menu1.options = options
+    category_dropdown_menu2.options = options
 
     # Check if the selected variable is valid for the selected time period
-    for attr in [attr_1, attr_2]:
-        if attr not in valid_variables[time_period]:
-            attr = valid_variables[time_period][0]
+    if attr_1 not in valid_variables[time_period]:
+        attr_1 = valid_variables[time_period][0]
+    if attr_2 not in valid_variables[time_period]:
+        attr_2 = valid_variables[time_period][0]
 
     return show_correlation(attr_1, attr_2, time_period, user_id, data)
 
 
-# Callback to update category dropdown
-@app.callback(Output('variable-dropdown1', 'options'),
-              Output('variable-dropdown2', 'options'),
-              Input('time-period-dropdown', 'value'))
-def update_category_dropdown(time_period):
-    options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
-    return options, options
+
 
 
 

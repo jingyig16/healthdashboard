@@ -7,18 +7,7 @@ from dash import dcc
 from dash import html
 from data import valid_variables
 
-
-# Create the dropdown menu to select a time period
-def create_time_period_dropdown():
-    return dcc.Dropdown(
-        id='time-period-dropdown',
-        options=[{'label': 'Daily', 'value': 'D'},
-                 {'label': 'Hourly', 'value': 'H'},
-                 {'label': 'Minute-by-Minute', 'value': 'M'},
-                 {'label': 'Second-by-Second', 'value': 'S'}],
-        value='D'
-    )
-
+from time_series import create_time_period_dropdown
 
 # Create the dropdown menu to select a variable
 category_dropdown_menu1 = dcc.Dropdown(
