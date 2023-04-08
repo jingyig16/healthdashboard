@@ -10,7 +10,13 @@ from data import read_data, valid_variables
 from home import homepage
 from time_series import category_dropdown_menu, create_time_series, time_series_page
 from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_sleep_analysis_graph
+
 from correlation import correlation_page, create_corr
+from time_series import create_time_period_dropdown1, category_dropdown_menu, create_time_series, time_series_page
+from correlation import create_time_period_dropdown2, variable_dropdown_menu1, variable_dropdown_menu2, create_corr, correlation_page
+from data import valid_variables
+from heart_health import heart_health_page, create_heart_graph, df, read_heartdata, manipulate_data
+
 
 # Reading the data
 data = read_data()
@@ -57,17 +63,18 @@ def display_page(pathname):
         return homepage()
     elif pathname == '/time-series':
         return time_series_page()
-        # [Add more elif conditions for other pages here]
     elif pathname == '/sleep-analysis':
         return sleep_analysis_page()
+    elif pathname == '/heart-health':
+        return heart_health_page()
     elif pathname == '/correlation':
         return correlation_page()
-    elif pathname == '/health-risk':
-        #return heart_health_page()
     else:
         return homepage()
 
 
+################################################################################################
+# Time Series Callbacks
 
 # Callback to update the time series chart
 @app.callback(Output('time-series-chart', 'figure'),
@@ -139,6 +146,7 @@ def update_category_dropdown(time_period):
     return options
 
 ##########################################################################################
+# Sleep Analysis Callbacks
 
 # Callback to update the sleep analysis graph
 @app.callback(Output('sleep-analysis-graph', 'figure'),
@@ -230,9 +238,7 @@ def update_additional_message(user_id, start_date, end_date, metric):
     return message
 
 ##########################################################################################
-
-# Correlation callbacks
-
+# Correlation Exploration Callbacks
 
 # Update the variable dropdowns based on the time period selection
 @app.callback(
@@ -276,6 +282,45 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
         return go.Figure()
 
     return create_corr(variable1, variable2, time_period, user_id, data)
+
+#########################################################################################################
+# Heart Health Callbacks
+@app.callback(
+    Output('heart-stats-graph', 'figure'),
+    Output('heart-message', 'children'),
+    Input('date-range', 'start_date'),
+    Input('date-range', 'end_date'),
+    Input('heart-metric', 'value'),
+    Input('user-id-sleep', 'value')
+)
+def update_heart_graph(start_date, end_date, metric, user_id):
+    user_data = df[df['id'] == user_id]
+
+    time_period_data = user_data[
+        (user_data['time'].dt.date >= pd.to_datetime(start_date)) &
+        (user_data['time'].dt.date <= pd.to_datetime(end_date))
+    ]
+
+    metric_data = time_period_data[metric]
+
+    fig = create_heart_graph(df, user_id, start_date, end_date, metric)
+
+    if metric == 'heartrate':
+        heart_message = html.P("Your heart beats approximately 100,000 times per day, accelerating and slowing through "
+                               "periods of rest and exertion. Your heart rate refers to how many times your heart beats "
+                               "per minute and can be an indicator of your cardiovascular health.")
+    else:
+        if metric_data.mean() < 5:
+            message = "Less than 5 METS is poor."
+        elif metric_data.mean() < 8:
+            message = "5-8 METS is fair."
+        elif metric_data.mean() < 11:
+            message = "9-11 METS is good."
+        else:
+            message = "12 METS or more is excellent."
+        heart_message = html.P(f"MET Score message: {message}")
+
+    return fig, heart_message
 
 
 # Update the app's config to suppress_callback_exceptions
