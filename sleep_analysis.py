@@ -1,17 +1,92 @@
 import pandas as pd
 import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output
 from data import read_data
 import dash_bootstrap_components as dbc
 
 data = read_data()
+
+def calculate_sleep_metrics(df, user_id, start_date, end_date):
+    """ Calculates sleep metrics: sleep efficiency, sleep duration, sleep latency
+    :param df: The dataframe to extract the data from
+    :param user_id: The users ID
+    :param start_date: The start date chosen on the dashboard
+    :param end_date: The end date chosen on the dashboard
+    :return: Dictionary of sleep metrics
+    """
+    # Selecting user data
+    user_data = df[df['Id'] == user_id]
+
+    # Selecting data withing data range
+    time_period_data = user_data[
+        (pd.to_datetime(user_data['ActivityDay']) >= pd.to_datetime(start_date)) &
+        (pd.to_datetime(user_data['ActivityDay']) <= pd.to_datetime(end_date))
+    ]
+
+
+    # Calculating sleep metrics
+    sleep_efficiency = (time_period_data['TotalMinutesAsleep'] / time_period_data['TotalTimeInBed']) * 100
+    sleep_duration = time_period_data['TotalMinutesAsleep']
+    sleep_latency = time_period_data['TotalTimeInBed'] - time_period_data['TotalMinutesAsleep']
+
+    # Saving sleep metric results in a dict
+    sleep_metrics = {
+        'SleepEfficiency': sleep_efficiency,
+        'SleepDuration': sleep_duration,
+        'SleepLatency': sleep_latency
+    }
+
+    return sleep_metrics
+
+def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
+    """
+
+    :param df: The dataframe to extract the data from
+    :param user_id: The users ID
+    :param start_date: The start date chosen on the dashboard
+    :param end_date: The end date chosen on the dashboard
+    :param metric: The sleep metric that the user has chosen to see
+    :return: Plotly go figure
+    """
+    # Calculating sleep metrics and filtering selected metric
+    sleep_metrics = calculate_sleep_metrics(df, user_id, start_date, end_date)
+    selected_metric = sleep_metrics[metric]
+
+    # Initializing go.figure
+    fig = go.Figure()
+
+    # Adding scatter plot
+    fig.add_trace(go.Scatter(
+        x=df['ActivityDay'],
+        y=selected_metric,
+        mode='lines+markers',
+        name=metric
+    ))
+
+    # Setting title and axes names
+    fig.update_layout(
+        title='Sleep Analysis',
+        xaxis_title='Date',
+        yaxis_title=metric
+    )
+
+    return fig
+
+
 def sleep_analysis_page():
+    """ Defines the layout for the sleep analysis page in the dashboard
+        with headings, multiple rows and columns, and graphs.
+
+    :return: The layout for the sleep analysis page in the dashboard
+    """
     return dbc.Container([
+        html.Br(),
         dbc.Row([
             # Sidebar
             dbc.Col([
                 html.Div([
+                    html.H5("Filters"),
+                    html.Hr(),
                     html.Label('Select a time period:'),
                     dcc.DatePickerRange(
                         id='date-range',
@@ -36,59 +111,34 @@ def sleep_analysis_page():
                     dcc.Dropdown(
                         id='user-id-sleep',
                         options=[{'label': i, 'value': i} for i in data['D']['TotalMinutesAsleep']['Id'].unique()],
-                        placeholder='Enter User ID', searchable=True
-                    )
-                ], className="bg-light sidebar", style={'border': '3px solid #000', 'height': '100%'})
+                        placeholder='Enter User ID', searchable=True),
+                    html.Br(),
+                    html.Div(id='sleep-message', className="text-center", style={'color': 'black'})
+                ], className="bg-light sidebar", style={
+                    'border': '1px solid white',
+                    'borderRadius': '15px',
+                    'height': '80%',
+                    'padding': '20px',
+                })
             ], md=3, className="text-center"),
 
             # Main content
             dbc.Col([
-                dcc.Graph(id='sleep-analysis-graph'),
-                html.Div(id='sleep-message', className="text-center"),
-                html.Div(id='additional-message', className="text-center")
+                html.Div([
+                    html.H1("Sleep Analysis", className="text-center", style={'color': 'white'}),
+                    html.Div([
+                        dcc.Graph(id='sleep-analysis-graph')
+                    ], style={
+                        'padding': '20px',
+                        'height': '100%',
+                    }),
+                ], style={
+                    'padding': '20px',
+                    'backgroundColor': 'black',
+                    'borderRadius': '15px',
+                    'height': '10%',
+                }),
+                html.Div(id='additional-message', className="text-center", style={'color': 'white'})
             ], md=9)
         ], style={'margin-right': '0', 'margin-left': '0'})
     ], fluid=True)
-
-
-
-def calculate_sleep_metrics(df, user_id, start_date, end_date):
-    user_data = df[df['Id'] == user_id]
-
-    time_period_data = user_data[
-        (pd.to_datetime(user_data['ActivityDay']) >= pd.to_datetime(start_date)) &
-        (pd.to_datetime(user_data['ActivityDay']) <= pd.to_datetime(end_date))
-    ]
-
-    sleep_efficiency = (time_period_data['TotalMinutesAsleep'] / time_period_data['TotalTimeInBed']) * 100
-    sleep_duration = time_period_data['TotalMinutesAsleep']
-    sleep_latency = time_period_data['TotalTimeInBed'] - time_period_data['TotalMinutesAsleep']
-
-    sleep_metrics = {
-        'SleepEfficiency': sleep_efficiency,
-        'SleepDuration': sleep_duration,
-        'SleepLatency': sleep_latency
-    }
-
-    return sleep_metrics
-
-def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
-    sleep_metrics = calculate_sleep_metrics(df, user_id, start_date, end_date)
-    selected_metric = sleep_metrics[metric]
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=df['ActivityDay'],
-        y=selected_metric,
-        mode='lines+markers',
-        name=metric
-    ))
-
-    fig.update_layout(
-        title='Sleep Analysis',
-        xaxis_title='Date',
-        yaxis_title=metric
-    )
-
-    return fig
