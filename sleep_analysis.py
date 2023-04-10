@@ -39,7 +39,8 @@ def calculate_sleep_metrics(df, user_id, start_date, end_date):
     return sleep_metrics
 
 def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
-    """
+    """ Extracts data based on user Id, date range, metric, and produces a
+    line plot of the daily average
 
     :param df: The dataframe to extract the data from
     :param user_id: The users ID

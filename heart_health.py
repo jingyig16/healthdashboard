@@ -13,6 +13,9 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 def read_heartdata():
+    """ Reads the heart data into respective dataframes
+    :return: heart rate and met dataframes
+    """
     sec_heartrate = pd.read_csv("data/heartrate_seconds_merged.csv")
     sec_heartrate.columns=['id', 'time', 'heartrate']
     min_met = pd.read_csv('data/minuteMETsNarrow_merged.csv')
@@ -21,10 +24,13 @@ def read_heartdata():
 
 
 def manipulate_data(df1, df2):
+    """ Manipulates MET (df2) by dividing by 10, according to data dictionary,
+    Gets minute average heartrate from df1, we only look at minute heart rate change
+
+    :param df1: Dataframe
+    :param df2: Dataframe
+    :return: df with id, time (every minute), heartrate, MET value
     """
-    - manipulate MET (df2) by dividing by 10, according to data dictionary
-    - get minute average heartrate from df1, we only look at minute heart rate change
-    return: df with id, time (every minute), heartrate, MET value """
     df2['MET'] = df2['MET'] / 10
     df2['time'] = pd.to_datetime(df2['time'], format='%m/%d/%Y %I:%M:%S %p')
     print(df2)
@@ -44,13 +50,21 @@ def manipulate_data(df1, df2):
 
 
 def heart_health_page(df):
+    """ Defines the layout for the heart health page in the dashboard
+        with headings, multiple rows and columns, and graphs.
+
+    :param df: Required Dataframe to select column from
+    :return: The layout for the heart health page in the dashboard
+    """
     return dbc.Container([
-        html.H1("Heart Health Tracker", className="text-center"),
+        html.Br(),
         dbc.Row([
             # Sidebar
             dbc.Col([
                 html.Div([
-                    html.Label('Select a time period:'),
+                    html.H5("Filters"),
+                    html.Hr(),
+                    html.Label("Select a time period:"),
                     dcc.DatePickerRange(
                         id='date-range',
                         start_date_placeholder_text='Start Date',
@@ -59,7 +73,7 @@ def heart_health_page(df):
                         max_date_allowed=pd.to_datetime('2016-05-12')
                     ),
                     html.Br(),
-                    html.Label('Select a metric:'),
+                    html.Label("Select a metric:"),
                     dcc.Dropdown(
                         id='heart-metric',
                         options=[
@@ -71,15 +85,23 @@ def heart_health_page(df):
                     html.Br(),
                     html.Label('Enter User ID:'),
                     dcc.Dropdown(
-                        id='user-id-sleep',
+                        id='user-id-heart',
                         options=[{'label': i, 'value': i} for i in df['id'].unique()],
                         placeholder='Enter User ID', searchable=True
-                    )
-                ], className="bg-light sidebar", style={'border': '3px solid #000', 'height': '100%'})
+                    ),
+                ], className="bg-light sidebar", style={
+                    'border': '1px solid white',
+                    'borderRadius': '15px',
+                    'height': '80%',
+                    'padding': '20px',
+                })
             ], md=3, className="text-center"),
+
 
             # Main content
             dbc.Col([
+                html.Br(),
+                html.H1("Heart Health Tracker", className="text-center", style={'color':'white'}),
                 dcc.Graph(id='heart-stats-graph'),
                 html.Div(id='heart-message', className="text-center"),
                 # heart rate message: just
@@ -90,12 +112,28 @@ def heart_health_page(df):
                 # MET message:
                 # Less than 5 METS is poor, 5–8 METS is fair, 9–11 METS is good, and 12 METS or more is excellent.
                 # create messages in callback function - similar to "update_additional_message" callback function in main.py
-            ], md=9)
-        ], style={'margin-right': '0', 'margin-left': '0'})
+            ], md=9, className='main-content', style={
+                'padding': '20px',
+                'backgroundColor': 'black',
+                'borderRadius': '15px',
+                'height': '80%',
+            })
+        ], style={'margin-right': '0', 'margin-left': '0', 'backgroundColor': 'black'})
     ], fluid=True)
 
 
+
 def create_heart_graph(df, user_id, start_date, end_date, metric):
+    """ Extracts data based, on user ID, date range, and metric,
+    and produces scatter plot of metric
+
+    :param df: The dataframe to extract the data from
+    :param user_id: The users ID
+    :param start_date: The start date chosen on the dashboard
+    :param end_date: The end date chosen on the dashboard
+    :param metric: The heart health metric that the user has chosen to see
+    :return: Plotly go figure
+    """
     """ metric: user chose in heart-metric dropdown """
     user_data = df[df['id'] == user_id]
 
@@ -112,6 +150,12 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
     return fig
 
 def update_met_message(mets):
+    """ Suggests whether their heart health
+    based on the metric chosen is poor, fair, or good
+
+    :param mets: metric chosen
+    :return: message
+    """
     if mets < 5:
         message = "Less than 5 METs is poor."
     elif mets >= 5 and mets <= 8:

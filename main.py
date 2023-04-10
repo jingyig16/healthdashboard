@@ -305,7 +305,7 @@ def update_heart_message(metric):
 @app.callback(
     [Output('heart-stats-graph', 'figure'),
      Output('met-message', 'children')],
-    [Input('user-id-sleep', 'value'),
+    [Input('user-id-heart', 'value'),
      Input('date-range', 'start_date'),
      Input('date-range', 'end_date'),
      Input('heart-metric', 'value')]
