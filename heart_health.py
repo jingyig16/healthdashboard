@@ -13,7 +13,6 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 
 def read_heartdata():
-
     sec_heartrate = pd.read_csv("data/heartrate_seconds_merged.csv")
     sec_heartrate.columns=['id', 'time', 'heartrate']
     min_met = pd.read_csv('data/minuteMETsNarrow_merged.csv')
@@ -105,9 +104,9 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
         (user_data['time'].dt.date <= pd.to_datetime(end_date))
     ]
 
-    metric_data  = time_period_data[metric]
+    metric_data = time_period_data[metric]
 
-    fig = px.scatter(x=time_period_data, y=metric_data,
+    fig = px.scatter(time_period_data, x='time', y=metric,
                      width=600, height=600)
 
     return fig

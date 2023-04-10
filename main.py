@@ -66,7 +66,7 @@ def display_page(pathname):
     elif pathname == '/sleep-analysis':
         return sleep_analysis_page()
     elif pathname == '/heart-health':
-        return heart_health_page()
+        return heart_health_page(df)
     elif pathname == '/correlation':
         return correlation_page()
     else:
