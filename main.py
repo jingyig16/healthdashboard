@@ -15,7 +15,7 @@ from correlation import correlation_page, create_corr
 from time_series import create_time_period_dropdown1, category_dropdown_menu, create_time_series, time_series_page
 from correlation import create_time_period_dropdown2, variable_dropdown_menu1, variable_dropdown_menu2, create_corr, correlation_page
 from data import valid_variables
-from heart_health import heart_health_page, create_heart_graph, df, read_heartdata, manipulate_data
+from heart_health import heart_health_page, create_heart_graph, df, read_heartdata, manipulate_data, update_met_message
 
 
 # Reading the data
@@ -285,42 +285,45 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
 
 #########################################################################################################
 # Heart Health Callbacks
+# Callback function to update heart message
 @app.callback(
-    Output('heart-stats-graph', 'figure'),
     Output('heart-message', 'children'),
-    Input('date-range', 'start_date'),
-    Input('date-range', 'end_date'),
-    Input('heart-metric', 'value'),
-    Input('user-id-sleep', 'value')
+    [Input('heart-metric', 'value')]
 )
-def update_heart_graph(start_date, end_date, metric, user_id):
-    user_data = df[df['id'] == user_id]
+def update_heart_message(metric):
+    heart_message = ""
 
-    time_period_data = user_data[
-        (user_data['time'].dt.date >= pd.to_datetime(start_date)) &
-        (user_data['time'].dt.date <= pd.to_datetime(end_date))
-    ]
+    if metric == 'heartrate':
+        heart_message = "Your heart beats approximately 100,000 times per day, accelerating and slowing " \
+                        "through periods of rest and exertion. " \
+                        "Your heart rate refers to how many times your heart beats per minute and can be an " \
+                        "indicator of your cardiovascular health."
 
-    metric_data = time_period_data[metric]
+    return heart_message
+
+# Callback for Heart Health Tracker
+@app.callback(
+    [Output('heart-stats-graph', 'figure'),
+     Output('met-message', 'children')],
+    [Input('user-id-sleep', 'value'),
+     Input('date-range', 'start_date'),
+     Input('date-range', 'end_date'),
+     Input('heart-metric', 'value')]
+)
+def update_heart_graph(user_id, start_date, end_date, metric):
+    if user_id is None or start_date is None or end_date is None:
+        return dash.no_update, dash.no_update
 
     fig = create_heart_graph(df, user_id, start_date, end_date, metric)
 
-    if metric == 'heartrate':
-        heart_message = html.P("Your heart beats approximately 100,000 times per day, accelerating and slowing through "
-                               "periods of rest and exertion. Your heart rate refers to how many times your heart beats "
-                               "per minute and can be an indicator of your cardiovascular health.")
-    else:
-        if metric_data.mean() < 5:
-            message = "Less than 5 METS is poor."
-        elif metric_data.mean() < 8:
-            message = "5-8 METS is fair."
-        elif metric_data.mean() < 11:
-            message = "9-11 METS is good."
-        else:
-            message = "12 METS or more is excellent."
-        heart_message = html.P(f"MET Score message: {message}")
+    met_message = ""
 
-    return fig, heart_message
+    if metric == 'MET':
+        avg_mets = df[df['id'] == user_id]['MET'].mean()
+        met_message = "Metabolic Equivalents (METs) measure the energy cost of physical activities. " \
+                      "A higher MET score indicates a higher intensity activity. " + update_met_message(avg_mets)
+
+    return fig, met_message
 
 
 # Update the app's config to suppress_callback_exceptions
