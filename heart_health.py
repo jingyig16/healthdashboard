@@ -33,7 +33,6 @@ def manipulate_data(df1, df2):
     """
     df2['MET'] = df2['MET'] / 10
     df2['time'] = pd.to_datetime(df2['time'], format='%m/%d/%Y %I:%M:%S %p')
-    print(df2)
     # get the average heartrate in every minute
     df_avg = pd.DataFrame()
     df1['time'] = pd.to_datetime(df1['time'], format='%m/%d/%Y %I:%M:%S %p')
@@ -43,7 +42,6 @@ def manipulate_data(df1, df2):
     df_resampled = df1['heartrate'].resample('1T').mean()
     df_resampled = df_resampled.reset_index()
     df_resampled['id'] = df_avg['id']
-    print(df_resampled)
     # not using outer join: we only evalute time when there's record for both heartrate and MET
     df_min = pd.merge(df_resampled, df2, on=['id', 'time'])
     return df_min
