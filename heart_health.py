@@ -144,8 +144,7 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
 
     metric_data = time_period_data[metric]
 
-    fig = px.scatter(time_period_data, x='time', y=metric,
-                     width=600, height=600)
+    fig = px.scatter(time_period_data, x='time', y=metric)
 
     return fig
 

@@ -31,7 +31,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavItem(dcc.Link("Time Series Visuals", href="/time-series", className="nav-link", style={'color': 'white'})),
         dbc.NavItem(dcc.Link("Correlation Exploration", href="/correlation", className="nav-link", style={'color': 'white'})),
         dbc.NavItem(dcc.Link("Sleep Analysis", href="/sleep-analysis", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Health Risk Assessment", href="/heart-health", className="nav-link", style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Heart Risk Assessment", href="/heart-health", className="nav-link", style={'color': 'white'})),
     ],
     brand="Fitbit Insights Dashboard",
     brand_href="/",

@@ -66,7 +66,7 @@ def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
 
     # Setting title and axes names
     fig.update_layout(
-        title='Sleep Analysis',
+        title=f'{metric} from {start_date} to {end_date}',
         xaxis_title='Date',
         yaxis_title=metric
     )
