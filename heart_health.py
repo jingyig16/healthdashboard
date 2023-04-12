@@ -106,7 +106,7 @@ def heart_health_page(df):
                 # "Your heart beats approximately 100,000 times per day, accelerating and slowing through periods of rest and exertion.
                 # Your heart rate refers to how many times your heart beats per minute and can be an indicator of your cardiovascular health."
                 # for all heart rate graphs
-                html.Div(id='met-message', className="text-center")
+                html.Div(id='met-message', className="text-center", style={'color':'white'})
                 # MET message:
                 # Less than 5 METS is poor, 5–8 METS is fair, 9–11 METS is good, and 12 METS or more is excellent.
                 # create messages in callback function - similar to "update_additional_message" callback function in main.py

@@ -3,19 +3,18 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import plotly.graph_objects as go
+import dash_auth
 
-from data import read_data, valid_variables
+from data import read_data, valid_users
 from home import homepage
-from time_series import category_dropdown_menu, create_time_series, time_series_page
 from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_sleep_analysis_graph
 
-from correlation import correlation_page, create_corr
-from time_series import create_time_period_dropdown1, category_dropdown_menu, create_time_series, time_series_page
-from correlation import create_time_period_dropdown2, variable_dropdown_menu1, variable_dropdown_menu2, create_corr, correlation_page
+from time_series import category_dropdown_menu, create_time_series, time_series_page
+from correlation import create_corr, correlation_page
 from data import valid_variables
-from heart_health import heart_health_page, create_heart_graph, df, read_heartdata, manipulate_data, update_met_message
+from heart_health import heart_health_page, create_heart_graph, df, update_met_message
 
 
 # Reading the data
@@ -23,6 +22,13 @@ data = read_data()
 
 # Initializing the app with external_stylesheets
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
+
+# Initializing authentication page
+auth = dash_auth.BasicAuth(
+    app,
+    valid_users
+)
+
 
 # Defining navigation bar for features of dashboard
 navbar = dbc.NavbarSimple(
