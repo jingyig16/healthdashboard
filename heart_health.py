@@ -31,19 +31,20 @@ def manipulate_data(df1, df2):
     :param df2: Dataframe
     :return: df with id, time (every minute), heartrate, MET value
     """
+
+
     df2['MET'] = df2['MET'] / 10
     df2['time'] = pd.to_datetime(df2['time'], format='%m/%d/%Y %I:%M:%S %p')
     # get the average heartrate in every minute
-    df_avg = pd.DataFrame()
-    df1['time'] = pd.to_datetime(df1['time'], format='%m/%d/%Y %I:%M:%S %p')
-    df_avg['id'] = df1['id']
 
-    df1.set_index('time', inplace=True)
-    df_resampled = df1['heartrate'].resample('1T').mean()
+
+    df1['time'] = pd.to_datetime(df1['time'], format='%m/%d/%Y %I:%M:%S %p')
+    df = df1.copy()
+    df['id'] = df['id'].astype(int)
+    df_resampled = df.groupby(['id', pd.Grouper(key='time', freq='1Min')])['heartrate'].mean()
     df_resampled = df_resampled.reset_index()
-    df_resampled['id'] = df_avg['id']
-    # not using outer join: we only evalute time when there's record for both heartrate and MET
-    df_min = pd.merge(df_resampled, df2, on=['id', 'time'])
+    df_resampled['time'] = df_resampled['time'].dt.round('1min')
+    df_min = df_resampled.merge(df2, on=['id', 'time'])
     return df_min
 
 
@@ -167,4 +168,5 @@ def update_met_message(mets):
 
 sec_heartrate, min_met = read_heartdata()
 df = manipulate_data(sec_heartrate, min_met)
+
 
