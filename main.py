@@ -5,8 +5,6 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
-import os
-
 
 from data import read_data
 from home import homepage
@@ -30,11 +28,16 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # Defining navigation bar for features of dashboard
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dcc.Link("Home", href="/home", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Time Series Visuals", href="/time-series", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Correlation Exploration", href="/correlation", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Sleep Analysis", href="/sleep-analysis", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Heart Health Tracker", href="/heart-health", className="nav-link", style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Home", href="/home", className="nav-link",
+                             style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Time Series Visuals", href="/time-series", className="nav-link",
+                             style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Correlation Exploration", href="/correlation", className="nav-link",
+                             style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Sleep Analysis", href="/sleep-analysis", className="nav-link",
+                             style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Heart Health Tracker", href="/heart-health", className="nav-link",
+                             style={'color': 'white'})),
     ],
     brand="Fitbit Insights Dashboard",
     brand_href="/",
@@ -76,7 +79,7 @@ def display_page(pathname):
         return homepage()
 
 
-################################################################################################
+################################################
 # Time Series Callbacks
 
 # Callback to update the time series chart
@@ -95,24 +98,22 @@ def update_time_series(variable, time_period, user_id):
     """
     if user_id is None:
         return {}
+
     # Update the options in the category_dropdown_menu
-    if time_period == 'D':
-        options = [{'label': v, 'value': v} for v in valid_variables['D']]
-    elif time_period == 'H':
-        options = [{'label': v, 'value': v} for v in valid_variables['H']]
-    elif time_period == 'M':
-        options = [{'label': v, 'value': v} for v in valid_variables['M']]
-    elif time_period =='S':
-        options = [{'label': v, 'value': v} for v in valid_variables['S']]
-    else:
-        options = []
+    options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
     category_dropdown_menu.options = options
 
     # Check if the selected variable is valid for the selected time period
-    if variable not in valid_variables[time_period]:
+    if variable is None or variable not in valid_variables[time_period]:
         variable = valid_variables[time_period][0]
 
+    # Check if the selected user ID is valid for the selected variable and time period
+    data_df = data[time_period][variable]
+    if user_id not in data_df['Id'].unique():
+        user_id = data_df['Id'].iloc[0]
+
     return create_time_series(variable, time_period, user_id, data)
+
 
 
 # Callback to update the user id options in time_series
@@ -148,7 +149,16 @@ def update_category_dropdown(time_period):
     options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
     return options
 
-##########################################################################################
+# Callback to reset variable and user id dropdowns when new time period is selected
+@app.callback(
+    Output('variable-dropdown', 'value'),
+    Output('user-id-ts', 'value'),
+    Input('time-period-dropdown1', 'value')
+)
+def reset_dropdowns(time_period):
+    return None, None
+
+################################################
 # Sleep Analysis Callbacks
 
 # Callback to update the sleep analysis graph
@@ -190,27 +200,52 @@ def update_sleep_message(user_id, start_date, end_date, metric):
     # Suggestion for sleep latency
     if metric == 'SleepLatency':
         if avg_metric > threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Consider incorporating relaxation techniques, avoid caffeine and create a consistent bedtime routine to help signal to your body that its time to sleep.'
+            message = f'Poor {metric}: Your average {metric} is above the recommended range of  ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Consider incorporating relaxation  ' \
+                      f' techniques, avoid caffeine and create a consistent bedtime routine to help signal to your  ' \
+                      f'body that its time to sleep.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Keep up the good work! Continue with your current sleep habits and consider experimenting with additional relaxation techniques or adjusting your sleep environment to further improve sleep latency.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Keep up the good work! Continue' \
+                      f' with your current sleep habits and consider experimenting with additional relaxation ' \
+                      f'techniques or adjusting your sleep environment to further improve sleep latency.'
         else:
-            message = f'Good {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! You are falling asleep quickly. Continue maintaining your healthy sleep habits to ensure a consistent sleep onset.'
+            message = f'Good {metric}: Your average {metric} is below the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! You are falling asleep' \
+                      f' quickly. Continue maintaining your healthy sleep habits to ensure a consistent sleep onset.'
     # Suggestion for sleep duration
     elif metric == 'SleepDuration':
         if avg_metric < threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Aim to get at least 7 hours of sleep per night. Establish a regular sleep schedule, avoid consuming caffeine or alcohol close to bedtime, and ensure a quiet and comfortable sleep environment.'
+            message = f'Poor {metric}: Your average {metric} is below the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Aim to get at least 7 hours of ' \
+                      f'sleep per night. Establish a regular sleep schedule, avoid consuming caffeine or alcohol ' \
+                      f'close to bedtime, and ensure a quiet and comfortable sleep environment.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Good job! You are meeting the recommended sleep duration. Continue with your current sleep habits and make any adjustments as needed to maintain this sleep duration.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Good job! You are meeting the' \
+                      f' recommended sleep duration. Continue with your current sleep habits and make any' \
+                      f' adjustments as needed to maintain this sleep duration.'
         else:
-            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. While you are getting sufficient sleep, its essential to monitor your daytime alertness and energy levels. If you feel overly tired or groggy during the day, consider consulting a healthcare professional'
+            message = f'Good {metric}: Your average {metric} is above the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. While you are getting sufficient' \
+                      f' sleep, its essential to monitor your daytime alertness and energy levels. If you feel overly' \
+                      f' tired or groggy during the day, consider consulting a healthcare professional'
     # Suggestion for sleep latency
     else:
         if avg_metric < threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Consider establishing a consistent sleep schedule, creating a comfortable sleep environment, and avoiding caffeine and electronics before bed to improve sleep efficiency.'
+            message = f'Poor {metric}: Your average {metric} is below the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Consider establishing a consistent' \
+                      f' sleep schedule, creating a comfortable sleep environment, and avoiding caffeine and' \
+                      f' electronics before bed to improve sleep efficiency.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Keep maintaining your current sleep habits but try to further improve your sleep routine by incorporating relaxation techniques, such as meditation or deep breathing exercises, before bed.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Keep maintaining your current sleep' \
+                      f' habits but try to further improve your sleep routine by incorporating relaxation' \
+                      f' techniques, such as meditation or deep breathing exercises, before bed.'
         else:
-            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! Continue maintaining your healthy sleep habits to ensure consistent, high-quality sleep.'
+            message = f'Good {metric}: Your average {metric} is above the recommended range of ' \
+                      f'{threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! Continue maintaining' \
+                      f' your healthy sleep habits to ensure consistent, high-quality sleep.'
 
     return message
 
@@ -259,7 +294,7 @@ def update_additional_message(user_id, start_date, end_date, metric):
 
     return message
 
-##########################################################################################
+################################################
 # Correlation Exploration Callbacks
 
 # Update the variable dropdowns based on the time period selection
@@ -305,7 +340,7 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
 
     return create_corr(variable1, variable2, time_period, user_id, data)
 
-#########################################################################################################
+################################################
 # Heart Health Callbacks
 # Callback function to update heart message
 @app.callback(

@@ -47,16 +47,20 @@ def create_time_series(variable, time_period, user_id, data):
     # Convert the time variable to datetime format
     if time_period == 'D':
         user_data['ActivityDay'] = pd.to_datetime(user_data['ActivityDay'])
-        fig = px.line(user_data, x='ActivityDay', y=variable, title=f'Line plot of Daily {variable}')
+        fig = px.line(user_data, x='ActivityDay', y=variable,
+                      title=f'Line plot of Daily {variable}', line_shape='spline')
     elif time_period == 'H':
         user_data['ActivityHour'] = pd.to_datetime(user_data['ActivityHour'], format='%m/%d/%Y %I:%M:%S %p')
-        fig = px.line(user_data, x='ActivityHour', y=variable, title=f'Line plot of Hourly {variable}')
+        fig = px.line(user_data, x='ActivityHour', y=variable,
+                      title=f'Line plot of Hourly {variable}', line_shape='spline')
     elif time_period == 'M':
         user_data['ActivityMinute'] = pd.to_datetime(user_data['ActivityMinute'], format='%m/%d/%Y %I:%M:%S %p')
-        fig = px.line(user_data, x='ActivityMinute', y=variable, title=f'Line plot of Minute-by-Minute {variable}')
+        fig = px.line(user_data, x='ActivityMinute', y=variable,
+                      title=f'Line plot of Minute-by-Minute {variable}', line_shape='spline')
     elif time_period == 'S':
         user_data['ActivitySecond'] = pd.to_datetime(user_data['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
-        fig = px.line(user_data, x='ActivitySecond', y=variable, title=f'Line plot of Second-by-Second {variable}')
+        fig = px.line(user_data, x='ActivitySecond', y=variable,
+                      title=f'Line plot of Second-by-Second {variable}', line_shape='spline')
 
     return fig
 
