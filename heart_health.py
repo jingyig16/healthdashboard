@@ -5,10 +5,10 @@
 
 # what we have: activity, steps, MET, weight, heart rate
 
+# Importing libraries
 import pandas as pd
-
+import os
 from dash import dcc, html
-from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
@@ -16,10 +16,21 @@ def read_heartdata():
     """ Reads the heart data into respective dataframes
     :return: heart rate and met dataframes
     """
-    sec_heartrate = pd.read_csv("/Users/jaigollapudi/Downloads/healthdashboard/data/heartrate_seconds_merged.csv")
+    # Getting absolute path of the directory that contains the data.py file,
+    # and then use joining that path with the relative path of each data file.
+
+    base_path = os.path.abspath(os.path.dirname(__file__))
+
+    # Getting the second heart rate data and extracting required columns
+    sec_heartrate_file = os.path.join(base_path, "data/heartrate_seconds_merged.csv")
+    sec_heartrate = pd.read_csv(sec_heartrate_file)
     sec_heartrate.columns=['id', 'time', 'heartrate']
-    min_met = pd.read_csv('/Users/jaigollapudi/Downloads/healthdashboard/data/minuteMETsNarrow_merged.csv')
+
+    # Getting the min met data and extracting required columns
+    min_met_file = os.path.join(base_path, "data/minuteMETsNarrow_merged.csv")
+    min_met = pd.read_csv(min_met_file)
     min_met.columns=['id', 'time', 'MET']
+
     return sec_heartrate, min_met
 
 
