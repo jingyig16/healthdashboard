@@ -130,6 +130,7 @@ def correlation_page():
                     'borderRadius': '15px',
                     'height': '80%',
                     'padding': '20px',
+                    'margin-top': '100px',
                 })
             ], md=3, className="text-center"),
 

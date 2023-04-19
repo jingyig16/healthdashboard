@@ -3,7 +3,6 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
-from data import valid_variables
 
 # Create the dropdown menu to select a time period
 def create_time_period_dropdown1():
@@ -88,6 +87,7 @@ def time_series_page():
                     'borderRadius': '15px',
                     'height': '80%',
                     'padding': '20px',
+                    'margin-top': '100px',
                 })
             ], md=3, className="text-center"),
 
@@ -102,7 +102,7 @@ def time_series_page():
                 'borderRadius': '15px',
                 'height': '80%',
             })
-        ], style={'margin-right': '0', 'margin-left': '0', 'backgroundColor': 'black'})
+        ], style={'margin-right': '0', 'margin-left': '0', 'backgroundColor': 'black'}, className="align-items-start")
     ], fluid=True)
 
 

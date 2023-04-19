@@ -88,8 +88,8 @@ def heart_health_page(df):
                         options=[{'label': i, 'value': i} for i in df['id'].unique()],
                         placeholder='Enter User ID', searchable=True
                     ),
-                    html.P("If nothing shows on the graph, it means that there's no data recorded "
-                           "during the time period selected.")
+                    html.P("If the graph shows gaps or no data points, it indicates that no data was recorded during"\
+                           "the selected time period.")
                 ], className="bg-light sidebar", style={
                     'border': '1px solid white',
                     'borderRadius': '15px',
