@@ -1,9 +1,11 @@
+# Importing libraries
 import pandas as pd
 import plotly.graph_objects as go
 from dash import dcc, html
 from data import read_data
 import dash_bootstrap_components as dbc
 
+# Reading data
 data = read_data()
 
 def calculate_sleep_metrics(df, user_id, start_date, end_date):
@@ -22,7 +24,6 @@ def calculate_sleep_metrics(df, user_id, start_date, end_date):
         (pd.to_datetime(user_data['ActivityDay']) >= pd.to_datetime(start_date)) &
         (pd.to_datetime(user_data['ActivityDay']) <= pd.to_datetime(end_date))
     ]
-
 
     # Calculating sleep metrics
     sleep_efficiency = (time_period_data['TotalMinutesAsleep'] / time_period_data['TotalTimeInBed']) * 100
@@ -73,7 +74,7 @@ def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
 
     return fig
 
-
+# Designing layout of the page
 def sleep_analysis_page():
     """ Defines the layout for the sleep analysis page in the dashboard
         with headings, multiple rows and columns, and graphs.
@@ -82,6 +83,7 @@ def sleep_analysis_page():
     """
     return dbc.Container([
         html.Br(),
+        dcc.Store(id='daily_sleep', data=data['D']['TotalMinutesAsleep'].to_dict()),
         dbc.Row([
             # Sidebar
             dbc.Col([
@@ -120,6 +122,7 @@ def sleep_analysis_page():
                     'borderRadius': '15px',
                     'height': '80%',
                     'padding': '20px',
+                    'margin-top': '100px',
                 })
             ], md=3, className="text-center"),
 

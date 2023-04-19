@@ -1,5 +1,6 @@
+# Importing libraries
 import pandas as pd
-
+import os
 
 def read_data():
     """ Reads csv files into dataframes, changes column names for consistency in data,
@@ -9,17 +10,35 @@ def read_data():
 
     :return: Nested dictionary
     """
-    daily_activity = pd.read_csv("data/dailyActivity_merged.csv")
-    daily_sleep = pd.read_csv("data/sleepDay_merged.csv")
-    daily_weight = pd.read_csv("data/weightLogInfo_merged.csv")
-    hourly_calories = pd.read_csv("data/hourlyCalories_merged.csv")
-    hourly_intensities = pd.read_csv("data/hourlyIntensities_merged.csv")
-    hourly_steps = pd.read_csv("data/hourlySteps_merged.csv")
-    minute_calories_narrow = pd.read_csv("data/minuteCaloriesNarrow_merged.csv")
-    minute_intensities_narrow = pd.read_csv("data/minuteIntensitiesNarrow_merged.csv")
-    minute_steps_narrow = pd.read_csv("data/minuteStepsNarrow_merged.csv")
-    minute_sleep = pd.read_csv("data/minuteSleep_merged.csv")
-    second_heartrate = pd.read_csv("data/heartrate_seconds_merged.csv")
+
+    # Getting absolute path of the directory that contains the data.py file,
+    # and then use joining that path with the relative path of each data file.
+    base_path = os.path.abspath(os.path.dirname(__file__))
+
+    daily_activity_file = os.path.join(base_path, "data/dailyActivity_merged.csv")
+    daily_sleep_file = os.path.join(base_path, "data/sleepDay_merged.csv")
+    daily_weight_file = os.path.join(base_path, "data/weightLogInfo_merged.csv")
+    hourly_calories_file = os.path.join(base_path, "data/hourlyCalories_merged.csv")
+    hourly_intensities_file = os.path.join(base_path, "data/hourlyIntensities_merged.csv")
+    hourly_steps_file = os.path.join(base_path, "data/hourlySteps_merged.csv")
+    minute_calories_narrow_file = os.path.join(base_path, "data/minuteCaloriesNarrow_merged.csv")
+    minute_intensities_narrow_file = os.path.join(base_path, "data/minuteIntensitiesNarrow_merged.csv")
+    minute_steps_narrow_file = os.path.join(base_path, "data/minuteStepsNarrow_merged.csv")
+    minute_sleep_file = os.path.join(base_path, "data/minuteSleep_merged.csv")
+    second_heartrate_file = os.path.join(base_path, "data/heartrate_seconds_merged.csv")
+
+    # Reading files into dataframes
+    daily_activity = pd.read_csv(daily_activity_file)
+    daily_sleep = pd.read_csv(daily_sleep_file)
+    daily_weight = pd.read_csv(daily_weight_file)
+    hourly_calories = pd.read_csv(hourly_calories_file)
+    hourly_intensities = pd.read_csv(hourly_intensities_file)
+    hourly_steps = pd.read_csv(hourly_steps_file)
+    minute_calories_narrow = pd.read_csv(minute_calories_narrow_file)
+    minute_intensities_narrow = pd.read_csv(minute_intensities_narrow_file)
+    minute_steps_narrow = pd.read_csv(minute_steps_narrow_file)
+    minute_sleep = pd.read_csv(minute_sleep_file)
+    second_heartrate = pd.read_csv(second_heartrate_file)
 
     # Data cleaning
     # Renaming column names for consistency over dataframes
@@ -29,9 +48,10 @@ def read_data():
     minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute'})
     second_heartrate = second_heartrate.rename(columns={'Time': 'ActivitySecond'})
 
+    # Converting column to datetime format
     daily_sleep['ActivityDay'] = pd.to_datetime(daily_sleep['ActivityDay'])
 
-    # Defining the variables and the dataframe it needs to be pulled from
+    # Defining the variables and the dataframe it needs to be extracted from
     data = {
         "D": {
             "TotalSteps": daily_activity,
@@ -73,7 +93,7 @@ def read_data():
     return data
 
 
-# Defining valid variables that user can choose from
+# Defining valid variables that user can choose from for time series and correlation
 valid_variables = {
     'D': ['TotalSteps', 'TotalDistance', 'TrackerDistance', 'LoggedActivitiesDistance',
           'VeryActiveDistance', 'ModeratelyActiveDistance', 'LightActiveDistance',
@@ -86,37 +106,3 @@ valid_variables = {
     'S': ['Value']
 }
 
-valid_users = {'fitbit': 'test',
-               1503960366: 'NEU_1',
-               1624580081: 'NEU_2',
-               1644430081: 'NEU_3',
-               1844505072: 'NEU_4',
-               1927972279: 'NEU_5',
-               2022484408: 'NEU_6',
-               2026352035: 'NEU_7',
-               2320127002: 'NEU_8',
-               2347167796: 'NEU_9',
-               2873212765: 'NEU_10',
-               3372868164: 'NEU_11',
-               3977333714: 'NEU_12',
-               4020332650: 'NEU_13',
-               4057192912: 'NEU_14',
-               4319703577: 'NEU_15',
-               4388161847: 'NEU_16',
-               4445114986: 'NEU_17',
-               4558609924: 'NEU_18',
-               4702921684: 'NEU_19',
-               5553957443: 'NEU_20',
-               5577150313: 'NEU_21',
-               6117666160: 'NEU_22',
-               6290855005: 'NEU_23',
-               6775888955: 'NEU_24',
-               6962181067: 'NEU_25',
-               7007744171: 'NEU_26',
-               7086361926: 'NEU_27',
-               8053475328: 'NEU_28',
-               8253242879: 'NEU_29',
-               8378563200: 'NEU_30',
-               8583815059: 'NEU_31',
-               8792009665: 'NEU_32',
-               8877689391: 'NEU_33'}
