@@ -16,9 +16,9 @@ def read_heartdata():
     """ Reads the heart data into respective dataframes
     :return: heart rate and met dataframes
     """
-    sec_heartrate = pd.read_csv("data/heartrate_seconds_merged.csv")
+    sec_heartrate = pd.read_csv("/Users/jaigollapudi/Downloads/healthdashboard/data/heartrate_seconds_merged.csv")
     sec_heartrate.columns=['id', 'time', 'heartrate']
-    min_met = pd.read_csv('data/minuteMETsNarrow_merged.csv')
+    min_met = pd.read_csv('/Users/jaigollapudi/Downloads/healthdashboard/data/minuteMETsNarrow_merged.csv')
     min_met.columns=['id', 'time', 'MET']
     return sec_heartrate, min_met
 
@@ -93,6 +93,7 @@ def heart_health_page(df):
                     'borderRadius': '15px',
                     'height': '80%',
                     'padding': '20px',
+                    'margin-top': '100px',
                 })
             ], md=3, className="text-center"),
 

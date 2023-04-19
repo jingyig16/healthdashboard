@@ -5,9 +5,10 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
-import dash_auth
+import os
 
-from data import read_data, valid_users
+
+from data import read_data
 from home import homepage
 from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_sleep_analysis_graph
 
@@ -20,15 +21,11 @@ from heart_health import heart_health_page, create_heart_graph, df, update_met_m
 # Reading the data
 data = read_data()
 
+
+external_stylesheets = [dbc.themes.BOOTSTRAP, 'https://use.fontawesome.com/releases/v5.8.1/css/all.css']
+
 # Initializing the app with external_stylesheets
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
-
-# Initializing authentication page
-auth = dash_auth.BasicAuth(
-    app,
-    valid_users
-)
-
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # Defining navigation bar for features of dashboard
 navbar = dbc.NavbarSimple(
@@ -37,7 +34,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavItem(dcc.Link("Time Series Visuals", href="/time-series", className="nav-link", style={'color': 'white'})),
         dbc.NavItem(dcc.Link("Correlation Exploration", href="/correlation", className="nav-link", style={'color': 'white'})),
         dbc.NavItem(dcc.Link("Sleep Analysis", href="/sleep-analysis", className="nav-link", style={'color': 'white'})),
-        dbc.NavItem(dcc.Link("Heart Risk Assessment", href="/heart-health", className="nav-link", style={'color': 'white'})),
+        dbc.NavItem(dcc.Link("Heart Health Tracker", href="/heart-health", className="nav-link", style={'color': 'white'})),
     ],
     brand="Fitbit Insights Dashboard",
     brand_href="/",
@@ -180,46 +177,65 @@ def update_sleep_message(user_id, start_date, end_date, metric):
 
     sleep_metrics = calculate_sleep_metrics(data['D']['TotalMinutesAsleep'], user_id, start_date, end_date)
     avg_metric = sleep_metrics[metric].mean()
+
+    # https://www.sleepfoundation.org/sleep-hygiene/sleep-efficiency
+    # https://www.sleepfoundation.org/press-release/national-sleep-foundation-recommends-new-sleep-times
+    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5449130/
     threshold = {
         'SleepEfficiency': [85, 90],
         'SleepDuration': [420, 480],
         'SleepLatency': [15, 30]
     }
 
+    # Suggestion for sleep latency
     if metric == 'SleepLatency':
         if avg_metric > threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Poor {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Consider incorporating relaxation techniques, avoid caffeine and create a consistent bedtime routine to help signal to your body that its time to sleep.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Keep up the good work! Continue with your current sleep habits and consider experimenting with additional relaxation techniques or adjusting your sleep environment to further improve sleep latency.'
         else:
-            message = f'Good {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Good {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! You are falling asleep quickly. Continue maintaining your healthy sleep habits to ensure a consistent sleep onset.'
+    # Suggestion for sleep duration
     elif metric == 'SleepDuration':
         if avg_metric < threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Aim to get at least 7 hours of sleep per night. Establish a regular sleep schedule, avoid consuming caffeine or alcohol close to bedtime, and ensure a quiet and comfortable sleep environment.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Good job! You are meeting the recommended sleep duration. Continue with your current sleep habits and make any adjustments as needed to maintain this sleep duration.'
         else:
-            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. While you are getting sufficient sleep, its essential to monitor your daytime alertness and energy levels. If you feel overly tired or groggy during the day, consider consulting a healthcare professional'
+    # Suggestion for sleep latency
     else:
         if avg_metric < threshold[metric][0]:
-            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Poor {metric}: Your average {metric} is below the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Consider establishing a consistent sleep schedule, creating a comfortable sleep environment, and avoiding caffeine and electronics before bed to improve sleep efficiency.'
         elif threshold[metric][0] <= avg_metric <= threshold[metric][1]:
-            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Fair {metric}: Your average {metric} is within the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Keep maintaining your current sleep habits but try to further improve your sleep routine by incorporating relaxation techniques, such as meditation or deep breathing exercises, before bed.'
         else:
-            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes.'
+            message = f'Good {metric}: Your average {metric} is above the recommended range of {threshold[metric][0]} to {threshold[metric][1]} minutes. Great job! Continue maintaining your healthy sleep habits to ensure consistent, high-quality sleep.'
 
     return message
 
 # Callback to update the user id options in sleep_analysis
 @app.callback(Output('user-id-sleep', 'options'),
-              Input('daily_sleep', 'data'))
-def update_user_id_options(daily_sleep_data):
-    if daily_sleep_data is None:
+              Input('daily_sleep', 'data'),
+              Input('date-range', 'start_date'),
+              Input('date-range', 'end_date'),
+              Input('sleep-metric', 'value'))
+def update_user_id_options(daily_sleep_data, start_date, end_date, metric):
+    if daily_sleep_data is None or start_date is None or end_date is None or metric is None:
         return []
 
     df = pd.DataFrame(daily_sleep_data)
-    user_ids = [{'label': i, 'value': i} for i in df['Id'].unique()]
+
+    # Filter user IDs based on selected date range and metric
+    filtered_user_ids = []
+    for user_id in df['Id'].unique():
+        sleep_metrics = calculate_sleep_metrics(df, user_id, start_date, end_date)
+        if not sleep_metrics[metric].empty:
+            filtered_user_ids.append(user_id)
+
+    user_ids = [{'label': i, 'value': i} for i in filtered_user_ids]
     return user_ids
+
 
 # Callback to generate info on sleep metric chosen
 @app.callback(
@@ -338,6 +354,6 @@ app.config.suppress_callback_exceptions = True
 
 # Running the app
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8053)
+    app.run_server(debug=True, port=8050)
 
 
