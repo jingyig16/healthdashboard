@@ -88,6 +88,8 @@ def heart_health_page(df):
                         options=[{'label': i, 'value': i} for i in df['id'].unique()],
                         placeholder='Enter User ID', searchable=True
                     ),
+                    html.P("If nothing shows on the graph, it means that there's no data recorded "
+                           "during the time period selected.")
                 ], className="bg-light sidebar", style={
                     'border': '1px solid white',
                     'borderRadius': '15px',
@@ -102,16 +104,9 @@ def heart_health_page(df):
             dbc.Col([
                 html.Br(),
                 html.H1("Heart Health Tracker", className="text-center", style={'color':'white'}),
-                dcc.Graph(id='heart-stats-graph'),
-                html.Div(id='heart-message', className="text-center"),
-                # heart rate message: just
-                # "Your heart beats approximately 100,000 times per day, accelerating and slowing through periods of rest and exertion.
-                # Your heart rate refers to how many times your heart beats per minute and can be an indicator of your cardiovascular health."
-                # for all heart rate graphs
-                html.Div(id='met-message', className="text-center", style={'color':'white'})
-                # MET message:
-                # Less than 5 METS is poor, 5–8 METS is fair, 9–11 METS is good, and 12 METS or more is excellent.
-                # create messages in callback function - similar to "update_additional_message" callback function in main.py
+                html.Div(id='heart-message', className="text-center", style={'color':'white'}),
+                html.Div(id='met-message', className="text-center", style={'color':'white'}),
+                dcc.Graph(id='heart-stats-graph')
             ], md=9, className='main-content', style={
                 'padding': '20px',
                 'backgroundColor': 'black',
@@ -148,22 +143,6 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
 
     return fig
 
-def update_met_message(mets):
-    """ Suggests whether their heart health
-    based on the metric chosen is poor, fair, or good
-
-    :param mets: metric chosen
-    :return: message
-    """
-    if mets < 5:
-        message = "Less than 5 METs is poor."
-    elif mets >= 5 and mets <= 8:
-        message = "5–8 METs is fair."
-    elif mets >= 9 and mets <= 11:
-        message = "9–11 METs is good."
-    else:
-        message = "12 METs or more is excellent."
-    return message
 
 
 
