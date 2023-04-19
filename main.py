@@ -14,7 +14,7 @@ from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_
 from time_series import category_dropdown_menu, create_time_series, time_series_page
 from correlation import create_corr, correlation_page
 from data import valid_variables
-from heart_health import heart_health_page, create_heart_graph, df, update_met_message
+from heart_health import heart_health_page, create_heart_graph, df
 
 
 # Reading the data
@@ -325,9 +325,11 @@ def update_heart_graph(user_id, start_date, end_date, metric):
     met_message = ""
 
     if metric == 'MET':
-        avg_mets = df[df['id'] == user_id]['MET'].mean()
-        met_message = "Metabolic Equivalents (METs) measure the energy cost of physical activities. " \
-                      "A higher MET score indicates a higher intensity activity. " + update_met_message(avg_mets)
+        met_message = "Metabolic Equivalents (METs) measure the energy cost of physical activities. 1 MET " \
+                      "is defined as the amount of oxygen consumed while sitting at rest and is equal to " \
+                      "3.5 ml O2/kg/min. " \
+                      "A higher MET score indicates a higher intensity activity. Less than 5 METs is poor, " \
+                      "5–8 METs is fair, 9–11 METs is good, and 12 METs or more is excellent."
 
     return fig, met_message
 
