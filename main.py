@@ -298,15 +298,28 @@ def update_additional_message(user_id, start_date, end_date, metric):
 ################################################
 # Correlation Exploration Callbacks
 
-# Update the variable dropdowns based on the time period selection
+# Update the variable dropdowns based on the time period selection and first variable
 @app.callback(
     [Output('variable-dropdown1', 'options'),
      Output('variable-dropdown2', 'options')],
-    [Input('time-period-dropdown2', 'value')]
+    [Input('time-period-dropdown2', 'value'),
+     Input('variable-dropdown1', 'value')]
 )
-def update_variable_dropdowns(time_period):
+def update_variable_dropdowns(time_period, first_variable):
     variable_options = [{'label': var, 'value': var} for var in valid_variables[time_period]]
-    return variable_options, variable_options
+
+    if first_variable is None:
+        return variable_options, []
+
+    first_variable_length = len(data[time_period][first_variable])
+    variable_options2 = [
+        {'label': var, 'value': var}
+        for var in valid_variables[time_period]
+        if len(data[time_period][var]) == first_variable_length
+    ]
+
+    return variable_options, variable_options2
+
 
 # Update the user id options in time_series
 @app.callback(Output('user-id-corr', 'options'),
@@ -340,6 +353,32 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
         return go.Figure()
 
     return create_corr(variable1, variable2, time_period, user_id, data)
+
+
+
+@app.callback(
+    [Output('variable-dropdown1', 'value'),
+     Output('variable-dropdown2', 'value'),
+     Output('user-id-corr', 'value')],
+    [Input('time-period-dropdown2', 'value'),
+     Input('variable-dropdown1', 'value')]
+)
+def reset_dropdowns_on_change(time_period_value, variable1_value):
+    ctx = dash.callback_context
+
+    # Check which input triggered the callback
+    if ctx.triggered:
+        input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    else:
+        input_id = None
+
+    if input_id == 'time-period-dropdown2':
+        return None, None, None
+    elif input_id == 'variable-dropdown1':
+        return dash.no_update, None, None
+    else:
+        return dash.no_update, dash.no_update, dash.no_update
+
 
 ################################################
 # Heart Health Callbacks

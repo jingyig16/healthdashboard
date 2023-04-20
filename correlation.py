@@ -74,10 +74,13 @@ def create_corr(variable1, variable2, time_period,  user_id, data):
         user_data1['ActivitySecond'] = pd.to_datetime(user_data1['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
         user_data2['ActivitySecond'] = pd.to_datetime(user_data2['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
 
-    # Calculate the line of best fit
-    slope, intercept, r_value, _, _ = linregress(user_data1[variable1], user_data2[variable2])
-    best_fit_x = np.linspace(user_data1[variable1].min(), user_data1[variable1].max(), 2)
-    best_fit_y = slope * best_fit_x + intercept
+    # Calculate the line of best fit if variables are different
+    if variable1 != variable2:
+        slope, intercept, r_value, _, _ = linregress(user_data1[variable1], user_data2[variable2])
+        best_fit_x = np.linspace(user_data1[variable1].min(), user_data1[variable1].max(), 2)
+        best_fit_y = slope * best_fit_x + intercept
+    else:
+        r_value = 1.0  # When both variables are the same, the correlation coefficient is 1
 
     # Create an empty figure
     fig = go.Figure()
@@ -87,9 +90,10 @@ def create_corr(variable1, variable2, time_period,  user_id, data):
                              name=f'{variable1} vs {variable2} (r = {r_value:.2f})',
                              marker=dict(color="blue", opacity=0.7)))
 
-    # Add the line of best fit
-    fig.add_trace(go.Scatter(x=best_fit_x, y=best_fit_y, mode='lines', name='Line of Best Fit',
-                             line=dict(color='red', width=2)))
+    # Add the line of best fit if variables are different
+    if variable1 != variable2:
+        fig.add_trace(go.Scatter(x=best_fit_x, y=best_fit_y, mode='lines', name='Line of Best Fit',
+                                 line=dict(color='red', width=2)))
 
     # Update the layout
     fig.update_layout(title=f"{variable1} vs {variable2}",
