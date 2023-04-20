@@ -45,8 +45,10 @@ def read_data():
     daily_activity = daily_activity.rename(columns={'ActivityDate': 'ActivityDay'})
     daily_sleep = daily_sleep.rename(columns={'SleepDay': 'ActivityDay'})
     daily_weight = daily_weight.rename(columns={'Date': 'ActivityDay'})
-    minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute'},)
-    second_heartrate = second_heartrate.rename(columns={'Time': 'ActivitySecond'})
+    minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute',
+                                                'value': 'TotalSleepRecords'})
+    second_heartrate = second_heartrate.rename(columns={'Time': 'ActivitySecond',
+                                                        'Value': 'Heartbeat'})
 
     # Converting column to datetime format
     daily_sleep['ActivityDay'] = pd.to_datetime(daily_sleep['ActivityDay'])
@@ -83,10 +85,10 @@ def read_data():
             "Steps": minute_steps_narrow,
             "Calories": minute_calories_narrow,
             "Intensity": minute_intensities_narrow,
-            "value": minute_sleep
+            "TotalSleepRecords": minute_sleep
         },
         "S": {
-            "Value": second_heartrate
+            "Heartbeat": second_heartrate
         }
     }
 
@@ -102,7 +104,7 @@ valid_variables = {
           'TotalSleepRecords', 'TotalTimeInBed', 'WeightKg', 'WeightPounds', 'BMI',
           ],
     'H': ['Calories', 'TotalIntensity', 'StepTotal'],
-    'M': ['Calories', 'Intensity', 'Steps', 'value'],
-    'S': ['Value']
+    'M': ['Calories', 'Intensity', 'Steps', 'TotalSleepRecords'],
+    'S': ['Heartbeat']
 }
 
