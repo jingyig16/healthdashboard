@@ -8,6 +8,8 @@ from data import read_data
 from scipy.stats import linregress
 
 data = read_data()
+
+
 # Create the dropdown menu to select a time period
 def create_time_period_dropdown2():
     """ Creates a dropdown with 4 values: Daily, Hourly,
@@ -40,9 +42,7 @@ variable_dropdown_menu2 = dcc.Dropdown(
 )
 
 
-
-
-def create_corr(variable1, variable2, time_period,  user_id, data):
+def create_corr(variable1, variable2, time_period, user_id, data):
     """ Extracts data based on variables, time period, and user ID;
         Converts to datetime format; Creates visualization.
 
@@ -75,7 +75,7 @@ def create_corr(variable1, variable2, time_period,  user_id, data):
         user_data2['ActivitySecond'] = pd.to_datetime(user_data2['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
 
     # Calculate the line of best fit if variables are different
-    if variable1 != variable2:
+    if variable1 != variable2 and (user_data1[variable1].equals(user_data2[variable2]) == False):
         slope, intercept, r_value, _, _ = linregress(user_data1[variable1], user_data2[variable2])
         best_fit_x = np.linspace(user_data1[variable1].min(), user_data1[variable1].max(), 2)
         best_fit_y = slope * best_fit_x + intercept
@@ -91,7 +91,7 @@ def create_corr(variable1, variable2, time_period,  user_id, data):
                              marker=dict(color="blue", opacity=0.7)))
 
     # Add the line of best fit if variables are different
-    if variable1 != variable2:
+    if variable1 != variable2 and (user_data1[variable1].equals(user_data2[variable2]) == False):
         fig.add_trace(go.Scatter(x=best_fit_x, y=best_fit_y, mode='lines', name='Line of Best Fit',
                                  line=dict(color='red', width=2)))
 
@@ -101,8 +101,28 @@ def create_corr(variable1, variable2, time_period,  user_id, data):
                       yaxis_title=variable2)
 
     # Display the figure
-    return fig
-    
+    return fig, r_value
+
+
+def interpret_r_score(r_value):
+    """
+    Takes the correlation coefficient and prints the corresponding message
+
+    :param r_value: Correlation coefficient
+    :return: Interpretation message
+    """
+    if abs(r_value) >= 0.9:
+        interpretation = "Very strong relationship"
+    elif abs(r_value) >= 0.7:
+        interpretation = "Strong relationship"
+    elif abs(r_value) >= 0.5:
+        interpretation = "Moderate relationship"
+    elif abs(r_value) >= 0.3:
+        interpretation = "Weak relationship"
+    else:
+        interpretation = "Very weak or no relationship"
+    return interpretation
+
 
 def correlation_page():
     """ Defines the layout for the correlation page in the dashboard
@@ -129,13 +149,14 @@ def correlation_page():
                     html.Br(),
                     html.Label("Enter Your User ID:"),
                     dcc.Dropdown(id='user-id-corr', options=[], placeholder='Enter User ID', searchable=True),
+                    html.Div(id='r-score-interpretation', className="mt-4 text-black")
                 ], className="bg-light sidebar", style={
                     'border': '1px solid white',
                     'borderRadius': '15px',
                     'height': '80%',
                     'padding': '20px',
                     'margin-top': '100px',
-                })
+                }),
             ], md=3, className="text-center"),
 
             # Main content
@@ -151,4 +172,3 @@ def correlation_page():
             })
         ], style={'margin-right': '0', 'margin-left': '0', 'backgroundColor': 'black'})
     ], fluid=True)
-

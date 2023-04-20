@@ -12,7 +12,7 @@ from home import homepage
 from sleep_analysis import sleep_analysis_page, calculate_sleep_metrics, create_sleep_analysis_graph
 
 from time_series import category_dropdown_menu, create_time_series, time_series_page
-from correlation import create_corr, correlation_page
+from correlation import create_corr, correlation_page, interpret_r_score
 from data import valid_variables
 from heart_health import heart_health_page, create_heart_graph, df
 
@@ -352,7 +352,8 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
     if not (time_period and variable1 and variable2 and user_id):
         return go.Figure()
 
-    return create_corr(variable1, variable2, time_period, user_id, data)
+    fig, r_value = create_corr(variable1, variable2, time_period, user_id, data)
+    return fig
 
 
 
@@ -378,6 +379,21 @@ def reset_dropdowns_on_change(time_period_value, variable1_value):
         return dash.no_update, None, None
     else:
         return dash.no_update, dash.no_update, dash.no_update
+
+@app.callback(
+    Output('r-score-interpretation', 'children'),
+    [Input('time-period-dropdown2', 'value'),
+     Input('variable-dropdown1', 'value'),
+     Input('variable-dropdown2', 'value'),
+     Input('user-id-corr', 'value')]
+)
+def update_r_score_interpretation(time_period, variable1, variable2, user_id):
+    if not (time_period and variable1 and variable2 and user_id):
+        return ""
+
+    fig, r_value = create_corr(variable1, variable2, time_period, user_id, data)
+    interpretation = interpret_r_score(r_value)
+    return f"R Score Interpretation: {interpretation} (r = {r_value:.2f})"
 
 
 ################################################
