@@ -20,7 +20,7 @@ from heart_health import heart_health_page, create_heart_graph, df
 # Reading the data
 data = read_data()
 
-
+# Using external stylesheets for app layout
 external_stylesheets = [dbc.themes.BOOTSTRAP, 'https://use.fontawesome.com/releases/v5.8.1/css/all.css']
 
 # Initializing the app with external_stylesheets
@@ -122,6 +122,12 @@ def update_time_series(variable, time_period, user_id):
               Input('variable-dropdown', 'value'),
               Input('time-period-dropdown1', 'value'))
 def update_user_id_options(variable, time_period):
+    """
+    Updates user id dropdown
+    :param variable: User selected variable
+    :param time_period: User selected time period
+    :return: user id drop down options
+    """
     if variable is None:
         return []
 
@@ -157,6 +163,11 @@ def update_category_dropdown(time_period):
     Input('time-period-dropdown1', 'value')
 )
 def reset_dropdowns(time_period):
+    """
+    Resets dropdown values when new time period is selected
+    :param time_period: User selected time period
+    :return: None for variable and user id
+    """
     return None, None
 
 ################################################
@@ -169,6 +180,14 @@ def reset_dropdowns(time_period):
               Input('date-range', 'end_date'),
               Input('sleep-metric', 'value'))
 def update_sleep_analysis_graph(user_id, start_date, end_date, metric):
+    """
+    Updates sleep analysis graph
+    :param user_id: Users ID
+    :param start_date: Selected start date
+    :param end_date: Selected end date
+    :param metric: Sleep metric chosen
+    :return: Sleep analysis graph
+    """
     if user_id is None or start_date is None or end_date is None:
         return {}
     return create_sleep_analysis_graph(data['D']['TotalMinutesAsleep'], user_id, start_date, end_date, metric)
@@ -183,6 +202,14 @@ def update_sleep_analysis_graph(user_id, start_date, end_date, metric):
     Input('date-range', 'end_date'),
     Input('sleep-metric', 'value'))
 def update_sleep_message(user_id, start_date, end_date, metric):
+    """
+    Updates sleep message
+    :param user_id: Users ID
+    :param start_date: Selected start date
+    :param end_date: Selected end date
+    :param metric: Sleep metric chosen
+    :return: Sleep message to be displayed
+    """
     if user_id is None or start_date is None or end_date is None:
         return ""
 
@@ -257,6 +284,14 @@ def update_sleep_message(user_id, start_date, end_date, metric):
               Input('date-range', 'end_date'),
               Input('sleep-metric', 'value'))
 def update_user_id_options(daily_sleep_data, start_date, end_date, metric):
+    """
+    Updates user id dropdown
+    :param daily_sleep_data: Daily sleep data
+    :param start_date: Selected start date
+    :param end_date: Selected end date
+    :param metric: Selected sleep metric
+    :return: user id options  in dropdown
+    """
     if daily_sleep_data is None or start_date is None or end_date is None or metric is None:
         return []
 
@@ -281,6 +316,14 @@ def update_user_id_options(daily_sleep_data, start_date, end_date, metric):
     Input('date-range', 'end_date'),
     Input('sleep-metric', 'value'))
 def update_additional_message(user_id, start_date, end_date, metric):
+    """
+    Updates suggestion
+    :param user_id: Users ID
+    :param start_date: Selected start date
+    :param end_date: Selected end date
+    :param metric: Sleep metric chosen
+    :return: Sleep message to be displayed
+    """
     if user_id is None or start_date is None or end_date is None or metric is None:
         return ""
 
@@ -306,6 +349,12 @@ def update_additional_message(user_id, start_date, end_date, metric):
      Input('variable-dropdown1', 'value')]
 )
 def update_variable_dropdowns(time_period, first_variable):
+    """
+    Updates variable dropdown options
+    :param time_period:
+    :param first_variable:
+    :return:  variable dropdown options
+    """
     variable_options = [{'label': var, 'value': var} for var in valid_variables[time_period]]
 
     if first_variable is None:
@@ -326,6 +375,12 @@ def update_variable_dropdowns(time_period, first_variable):
               [Input('variable-dropdown1', 'value'),
                Input('time-period-dropdown2', 'value')])
 def update_user_id_options(variable, time_period):
+    """
+    Updates variable dropdown options for variable 2 based on variable 1
+    :param variable: Chosen variable1
+    :param time_period: Chosen time period
+    :return: Updates variable dropdown options for variable 2
+    """
     if variable is None or time_period is None:
         return []
 
@@ -349,6 +404,14 @@ def update_user_id_options(variable, time_period):
      Input('user-id-corr', 'value')]
 )
 def update_corr_chart(time_period, variable1, variable2, user_id):
+    """
+    Updates the correlation chart based on user inputs
+    :param time_period: Chosen time period
+    :param variable1: Chosen variable
+    :param variable2: Chosen variable
+    :param user_id: Users ID
+    :return: Correlation chart with line of best fit and correlation coef
+    """
     if not (time_period and variable1 and variable2 and user_id):
         return go.Figure()
 
@@ -365,6 +428,12 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
      Input('variable-dropdown1', 'value')]
 )
 def reset_dropdowns_on_change(time_period_value, variable1_value):
+    """
+    Checks which callback was triggered and resets rest of dropdowns accordingly
+    :param time_period_value: Selected time period
+    :param variable1_value: Selected variable 1
+    :return:
+    """
     ctx = dash.callback_context
 
     # Check which input triggered the callback
@@ -388,6 +457,14 @@ def reset_dropdowns_on_change(time_period_value, variable1_value):
      Input('user-id-corr', 'value')]
 )
 def update_r_score_interpretation(time_period, variable1, variable2, user_id):
+    """
+    Updates the interpretation message on r score between chosen variables
+    :param time_period: Chosen time period
+    :param variable1: Chosen variable 1
+    :param variable2: Chosen variable 2
+    :param user_id: Users ID
+    :return: Interpretation message on r score between chosen variables
+    """
     if not (time_period and variable1 and variable2 and user_id):
         return ""
 
@@ -407,6 +484,11 @@ def update_r_score_interpretation(time_period, variable1, variable2, user_id):
     [Input('heart-metric', 'value')]
 )
 def update_heart_message(metric):
+    """
+    Updates heart health messages based on metric chosen
+    :param metric: Chosen metric
+    :return: heart health messages based on metric chosen
+    """
     heart_message = ""
 
     if metric == 'heartrate':
@@ -427,6 +509,14 @@ def update_heart_message(metric):
      Input('heart-metric', 'value')]
 )
 def update_heart_graph(user_id, start_date, end_date, metric):
+    """
+    Updates the heart health graoh based iin the users inputs
+    :param user_id: Users ID
+    :param start_date: Chosen start date
+    :param end_date: Chosen end date
+    :param metric: Chosen heart health metric
+    :return: Heart health graph
+    """
     if user_id is None or start_date is None or end_date is None:
         return dash.no_update, dash.no_update
 

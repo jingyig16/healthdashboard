@@ -13,7 +13,7 @@ def homepage():
     return dbc.Container([
         html.Br(),
         html.H1("Welcome to Fitbit Insights Dashboard", className="text-center", style={'color': 'white'}),
-        html.P("Select a feature from the navigation menu on the left to begin analyzing your Fitbit data.",
+        html.P("Select a feature from the navigation menu on the top right to begin analyzing your Fitbit data.",
                className="text-center", style={'color': 'white'}),
         dbc.Row([
             html.Br(),
