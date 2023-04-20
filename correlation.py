@@ -74,6 +74,10 @@ def create_corr(variable1, variable2, time_period, user_id, data):
         user_data1['ActivitySecond'] = pd.to_datetime(user_data1['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
         user_data2['ActivitySecond'] = pd.to_datetime(user_data2['ActivitySecond'], format='%m/%d/%Y %I:%M:%S %p')
 
+    # Check if all x values are identical
+    if len(set(user_data1[variable1])) == 1:
+        return go.Figure(), None
+
     # Calculate the line of best fit if variables are different
     if variable1 != variable2 and (user_data1[variable1].equals(user_data2[variable2]) == False):
         slope, intercept, r_value, _, _ = linregress(user_data1[variable1], user_data2[variable2])

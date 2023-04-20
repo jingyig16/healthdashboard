@@ -392,6 +392,9 @@ def update_r_score_interpretation(time_period, variable1, variable2, user_id):
         return ""
 
     fig, r_value = create_corr(variable1, variable2, time_period, user_id, data)
+    if r_value is None:
+        return "Cannot calculate a linear regression if all x values are identical"
+
     interpretation = interpret_r_score(r_value)
     return f"R Score Interpretation: {interpretation} (r = {r_value:.2f})"
 

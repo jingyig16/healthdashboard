@@ -100,7 +100,7 @@ def heart_health_page(df):
                         placeholder='Enter User ID', searchable=True
                     ),
                     html.P("If the graph shows gaps or no data points, it indicates that no data was recorded during"\
-                           "the selected time period.")
+                           " the selected time period.")
                 ], className="bg-light sidebar", style={
                     'border': '1px solid white',
                     'borderRadius': '15px',

@@ -45,7 +45,7 @@ def read_data():
     daily_activity = daily_activity.rename(columns={'ActivityDate': 'ActivityDay'})
     daily_sleep = daily_sleep.rename(columns={'SleepDay': 'ActivityDay'})
     daily_weight = daily_weight.rename(columns={'Date': 'ActivityDay'})
-    minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute'})
+    minute_sleep = minute_sleep.rename(columns={'date': 'ActivityMinute'},)
     second_heartrate = second_heartrate.rename(columns={'Time': 'ActivitySecond'})
 
     # Converting column to datetime format
