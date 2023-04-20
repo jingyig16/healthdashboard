@@ -1,3 +1,11 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+correlation.py: individual file for Correlation Exploration
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 import pandas as pd
 import numpy as np
 import dash_bootstrap_components as dbc
@@ -7,6 +15,7 @@ import plotly.graph_objects as go
 from data import read_data
 from scipy.stats import linregress
 
+# read in data
 data = read_data()
 
 

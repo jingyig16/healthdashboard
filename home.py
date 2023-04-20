@@ -1,3 +1,11 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+home.py: individual file for homepage
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 # Importing libraries
 import dash_bootstrap_components as dbc
 from dash import html

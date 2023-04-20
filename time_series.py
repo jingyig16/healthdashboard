@@ -1,9 +1,18 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+time_series.py: individual file for Time Series Visuals
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 # Importing libraries
 import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
+
 
 # Create the dropdown menu to select a time period
 def create_time_period_dropdown1():
@@ -28,6 +37,7 @@ category_dropdown_menu = dcc.Dropdown(
     options=[],
     value=None
 )
+
 
 # Create the time series chart
 def create_time_series(variable, time_period, user_id, data):
@@ -64,6 +74,7 @@ def create_time_series(variable, time_period, user_id, data):
                       title=f'Line plot of Second-by-Second {variable}')
 
     return fig
+
 
 def time_series_page():
     """ Defines the layout for the time series page in the dashboard

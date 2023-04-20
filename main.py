@@ -1,3 +1,11 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+main.py: All callback functions
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 # Importing libraries
 import dash
 import pandas as pd
@@ -53,7 +61,6 @@ app.layout = html.Div([
     navbar,
     html.Div(id='page-content')
 ], style={'backgroundColor': 'black', 'height': '100vh'})
-
 
 
 # Callback for page (feature) navigation
@@ -116,7 +123,6 @@ def update_time_series(variable, time_period, user_id):
     return create_time_series(variable, time_period, user_id, data)
 
 
-
 # Callback to update the user id options in time_series
 @app.callback(Output('user-id-ts', 'options'),
               Input('variable-dropdown', 'value'),
@@ -156,6 +162,7 @@ def update_category_dropdown(time_period):
     options = [{'label': v, 'value': v} for v in valid_variables[time_period]]
     return options
 
+
 # Callback to reset variable and user id dropdowns when new time period is selected
 @app.callback(
     Output('variable-dropdown', 'value'),
@@ -172,6 +179,7 @@ def reset_dropdowns(time_period):
 
 ################################################
 # Sleep Analysis Callbacks
+
 
 # Callback to update the sleep analysis graph
 @app.callback(Output('sleep-analysis-graph', 'figure'),
@@ -216,9 +224,6 @@ def update_sleep_message(user_id, start_date, end_date, metric):
     sleep_metrics = calculate_sleep_metrics(data['D']['TotalMinutesAsleep'], user_id, start_date, end_date)
     avg_metric = sleep_metrics[metric].mean()
 
-    # https://www.sleepfoundation.org/sleep-hygiene/sleep-efficiency
-    # https://www.sleepfoundation.org/press-release/national-sleep-foundation-recommends-new-sleep-times
-    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5449130/
     threshold = {
         'SleepEfficiency': [85, 90],
         'SleepDuration': [420, 480],
@@ -276,6 +281,7 @@ def update_sleep_message(user_id, start_date, end_date, metric):
                       f' your healthy sleep habits to ensure consistent, high-quality sleep.'
 
     return message
+
 
 # Callback to update the user id options in sleep_analysis
 @app.callback(Output('user-id-sleep', 'options'),
@@ -335,11 +341,11 @@ def update_additional_message(user_id, start_date, end_date, metric):
     elif metric == 'SleepLatency':
         message = f"Sleep latency is the time it takes to fall asleep after going to bed. "
 
-
     return message
 
 ################################################
 # Correlation Exploration Callbacks
+
 
 # Update the variable dropdowns based on the time period selection and first variable
 @app.callback(
@@ -395,6 +401,7 @@ def update_user_id_options(variable, time_period):
 
     return options
 
+
 # Create the time series chart based on user input
 @app.callback(
     Output('correlation-chart', 'figure'),
@@ -418,8 +425,7 @@ def update_corr_chart(time_period, variable1, variable2, user_id):
     fig, r_value = create_corr(variable1, variable2, time_period, user_id, data)
     return fig
 
-
-
+# Callback on reset dropdowns for future, new selections
 @app.callback(
     [Output('variable-dropdown1', 'value'),
      Output('variable-dropdown2', 'value'),
@@ -432,7 +438,7 @@ def reset_dropdowns_on_change(time_period_value, variable1_value):
     Checks which callback was triggered and resets rest of dropdowns accordingly
     :param time_period_value: Selected time period
     :param variable1_value: Selected variable 1
-    :return:
+    :return: dash.no_update indicating there's no updates, or None
     """
     ctx = dash.callback_context
 
@@ -449,6 +455,8 @@ def reset_dropdowns_on_change(time_period_value, variable1_value):
     else:
         return dash.no_update, dash.no_update, dash.no_update
 
+
+# Callback on update r scores after graph changes
 @app.callback(
     Output('r-score-interpretation', 'children'),
     [Input('time-period-dropdown2', 'value'),

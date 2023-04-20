@@ -1,3 +1,11 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+sleep_analysis.py: individual file for Sleep Analysis
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 # Importing libraries
 import pandas as pd
 import plotly.graph_objects as go
@@ -7,6 +15,7 @@ import dash_bootstrap_components as dbc
 
 # Reading data
 data = read_data()
+
 
 def calculate_sleep_metrics(df, user_id, start_date, end_date):
     """ Calculates sleep metrics: sleep efficiency, sleep duration, sleep latency
@@ -38,6 +47,7 @@ def calculate_sleep_metrics(df, user_id, start_date, end_date):
     }
 
     return sleep_metrics
+
 
 def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
     """ Extracts data based on user Id, date range, metric, and produces a
@@ -73,6 +83,7 @@ def create_sleep_analysis_graph(df, user_id, start_date, end_date, metric):
     )
 
     return fig
+
 
 # Designing layout of the page
 def sleep_analysis_page():

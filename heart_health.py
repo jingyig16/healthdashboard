@@ -1,9 +1,10 @@
-# notes to self - just ignore these
-# These CVD risk factors include unhealthful nutrition, physical inactivity, dyslipidemia,
-# hyperglycemia, high blood pressure, obesity, considerations of select populations, sex differences,
-# and race/ethnicity, thrombosis/smoking, kidney dysfunction, and genetics/familial hypercholesterolemia
-
-# what we have: activity, steps, MET, weight, heart rate
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+heart_health.py: individual file for Heart Health Tracker
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
 
 # Importing libraries
 import pandas as pd
@@ -11,6 +12,7 @@ import os
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
+
 
 def read_heartdata():
     """ Reads the heart data into respective dataframes
@@ -38,17 +40,16 @@ def manipulate_data(df1, df2):
     """ Manipulates MET (df2) by dividing by 10, according to data dictionary,
     Gets minute average heartrate from df1, we only look at minute heart rate change
 
-    :param df1: Dataframe
-    :param df2: Dataframe
+    :param df1: Dataframe, sec_heartrate, heart rate data by secs
+    :param df2: Dataframe, min_met, MET data
     :return: df with id, time (every minute), heartrate, MET value
     """
 
-
+    # get normal MET data
     df2['MET'] = df2['MET'] / 10
     df2['time'] = pd.to_datetime(df2['time'], format='%m/%d/%Y %I:%M:%S %p')
+
     # get the average heartrate in every minute
-
-
     df1['time'] = pd.to_datetime(df1['time'], format='%m/%d/%Y %I:%M:%S %p')
     df = df1.copy()
     df['id'] = df['id'].astype(int)
@@ -74,6 +75,7 @@ def heart_health_page(df):
                 html.Div([
                     html.H5("Filters"),
                     html.Hr(),
+                    # time period data picker
                     html.Label("Select a time period:"),
                     dcc.DatePickerRange(
                         id='date-range',
@@ -83,6 +85,7 @@ def heart_health_page(df):
                         max_date_allowed=pd.to_datetime('2016-05-12')
                     ),
                     html.Br(),
+                    # metric dropdown
                     html.Label("Select a metric:"),
                     dcc.Dropdown(
                         id='heart-metric',
@@ -93,6 +96,7 @@ def heart_health_page(df):
                         value='Heart Rate'
                     ),
                     html.Br(),
+                    # user id dropdown
                     html.Label('Enter User ID:'),
                     dcc.Dropdown(
                         id='user-id-heart',
@@ -128,7 +132,6 @@ def heart_health_page(df):
     ], fluid=True)
 
 
-
 def create_heart_graph(df, user_id, start_date, end_date, metric):
     """ Extracts data based, on user ID, date range, and metric,
     and produces scatter plot of metric
@@ -148,15 +151,11 @@ def create_heart_graph(df, user_id, start_date, end_date, metric):
         (user_data['time'].dt.date <= pd.to_datetime(end_date))
     ]
 
-    metric_data = time_period_data[metric]
-
     fig = px.scatter(time_period_data, x='time', y=metric)
 
     return fig
 
-
-
-
+# read in data
 sec_heartrate, min_met = read_heartdata()
 df = manipulate_data(sec_heartrate, min_met)
 

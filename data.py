@@ -1,12 +1,20 @@
+"""
+Anoushka Bhatia, Xi Chen, Jai Gollapudi, Jingyi Gong, Krishi Patel, Shreya Thalvayapati
+DS3500 Final Project: Fitbit Insights Dashboard
+4/19/2023
+data.py: reading in data from files
+Github repo: https://github.com/jingyig16/healthdashboard
+"""
+
 # Importing libraries
 import pandas as pd
 import os
+
 
 def read_data():
     """ Reads csv files into dataframes, changes column names for consistency in data,
         and makes a nested dictionary with smaller dict containing variable as key and
         df as value; Larger dict containing key as time period and small dict as value.
-
 
     :return: Nested dictionary
     """
